@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع نشر أسماء</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 20px 30px;
+        }
+
+        .profile-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        /* تنسيق التاريخ */
+        #current-date {
+            font-size: 16px;
+            color: #555;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #search-container {
+            margin-bottom: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #search-input {
+            padding: 10px;
+            width: 250px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        #search-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.5);
+        }
+
+        #search-button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 6px #999;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        #search-button:hover {
+            background-color: #45a049;
+            box-shadow: 0 12px #999;
+            transform: translateY(-4px);
+        }
+
+        #search-button:active {
+            background-color: #388e3c;
+            box-shadow: 0 4px #666;
+            transform: translateY(2px);
+        }
+
+        #names-list {
+            list-style-type: none;
+            padding: 0;
+            display: none;
+        }
+
+        li {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #error-message {
+            color: red;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #found-name {
+            color: green;
+            font-size: 20px;
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        #found-name::after {
+            content: "";
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #00ff00, #4CAF50, #00ff00);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://f.top4top.io/p_3234fnysh0.jpg" alt="صورة النائب هيفاء الجابري" class="profile-image">
+        <h1>مكتب النائب هيفاء الجابري</h1>
+    </header>
+    <main>
+        <!-- عرض التاريخ الحالي بالتنسيق yyyy/mm/dd -->
+        <div id="current-date"></div>
+
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="ابحث عن اسم...">
+            <button id="search-button">بحث</button>
+        </div>
+
+        <ul id="names-list">
+            <li>أحمد</li>
+            <li>سارة</li>
+            <li>محمد</li>
+            <li>فاطمة</li>
+            <li>علي</li>
+        </ul>
+
+        <div id="found-name"></div>
+        <div id="error-message" style="display: none;">نأسف على التأخير قريبا سيكتمل طلبك.</div>
+    </main>
+
+    <script>
+        // عرض التاريخ الحالي بالتنسيق yyyy/mm/dd
+        const currentDateElement = document.getElementById('current-date');
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // إضافة صفر إذا كان الشهر أقل من 10
+        const day = currentDate.getDate().toString().padStart(2, '0'); // إضافة صفر إذا كان اليوم أقل من 10
+
+        const dateString = `${year}/${month}/${day}`;
+        currentDateElement.textContent = dateString;
+
+        // وظيفة البحث عند الضغط على زر البحث
+        document.getElementById('search-button').addEventListener('click', function() {
+            var searchValue = document.getElementById('search-input').value.toLowerCase();
+            var namesList = document.getElementById('names-list');
+            var names = namesList.getElementsByTagName('li');
+            var found = false;
+
+            // إخفاء جميع الأسماء
+            namesList.style.display = 'none';
+
+            // إخفاء رسالة الخطأ
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('found-name').innerHTML = ''; 
+
+            // البحث عن الاسم
+            for (var i = 0; i < names.length; i++) {
+                var name = names[i].textContent || names[i].innerText;
+                if (name.toLowerCase().includes(searchValue)) {
+                    document.getElementById('found-name').innerHTML = 'الاسم: ' + name;
+                    document.getElementById('found-name').style.color = 'green';
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                document.getElementById('error-message').style.display = 'block';
+            }
+        });
+
+        // تمكين البحث عند الضغط على "Enter"
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                document.getElementById('search-button').click();
+            }
+        });
+    </script>
+</body>
+</html>
